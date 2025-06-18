@@ -32,8 +32,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response
-    ) {
+    public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();
         extractTokenFromCookie(cookies).ifPresent(token -> {
             Cookie expiredCookie = new Cookie("token", null);

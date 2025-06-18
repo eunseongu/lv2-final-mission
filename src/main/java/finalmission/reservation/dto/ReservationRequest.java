@@ -6,15 +6,12 @@ import finalmission.site.domain.Site;
 import java.time.LocalDate;
 
 public record ReservationRequest(
-        LocalDate date,
-        Long memberId,
+        LocalDate checkInDate,
+        LocalDate checkOutDate,
         Long siteId
 ) {
-    public Reservation toReservation(ReservationRequest request, Member member, Site site) {
-        return new Reservation(null, request.date, member, site);
-    }
 
     public Reservation toReservation(Member member, Site site) {
-        return new Reservation(null, date, member, site);
+        return new Reservation(null, this.checkInDate, this.checkOutDate, member, site);
     }
 }

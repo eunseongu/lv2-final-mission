@@ -10,6 +10,7 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,8 +28,9 @@ public class ReservationController {
     }
 
     @PostMapping
-    public ResponseEntity<ReservationResponse> create(@RequestBody ReservationRequest request) {
-        ReservationResponse response = reservationService.create(request);
+    public ResponseEntity<ReservationResponse> create(LoginMember loginMember,
+                                                      @RequestBody ReservationRequest request) {
+        ReservationResponse response = reservationService.create(loginMember, request);
         return ResponseEntity.created(URI.create("/reservations/" + response.id())).body(response);
     }
 
@@ -44,9 +46,17 @@ public class ReservationController {
         return ResponseEntity.ok().body(allMyReservations);
     }
 
-    @DeleteMapping("/mine/{memberId}")
-    public ResponseEntity<Void> deleteMyReservation(@PathVariable("memberId") Long memberId) {
-        reservationService.delete(memberId);
+    @PatchMapping("/mine/{reservationId}")
+    public ResponseEntity<ReservationResponse> updateReservation(LoginMember loginMember,
+                                                                 @PathVariable("reservationId") Long reservationId,
+                                                                 @RequestBody ReservationRequest request) {
+        ReservationResponse response = reservationService.update(loginMember, reservationId, request);
+        return ResponseEntity.created(URI.create("/reservations/mine/" + response.id())).body(response);
+    }
+
+    @DeleteMapping("/mine/{reservationId}")
+    public ResponseEntity<Void> deleteMyReservation(@PathVariable("reservationId") Long reservationId) {
+        reservationService.delete(reservationId);
         return ResponseEntity.noContent().build();
     }
 }

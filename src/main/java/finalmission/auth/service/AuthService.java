@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthService {
 
-    private static final String SECRET_KEY = "Secret";
+    private static final String SECRET_KEY = "Yn2kjibddFAWtnPJ2AFlL8WXmohJMCvigQggaEypa5E=";
     private final MemberRepository memberRepository;
 
     public AuthService(MemberRepository memberRepository) {

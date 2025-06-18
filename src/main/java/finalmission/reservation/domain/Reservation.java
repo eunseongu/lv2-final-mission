@@ -16,7 +16,8 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDate date;
+    private LocalDate checkInDate;
+    private LocalDate checkOutDate;
 
     @ManyToOne
     private Member member;
@@ -24,9 +25,10 @@ public class Reservation {
     @ManyToOne
     private Site site;
 
-    public Reservation(Long id, LocalDate date, Member member, Site site) {
+    public Reservation(Long id, LocalDate checkInDate, LocalDate checkOutDate, Member member, Site site) {
         this.id = id;
-        this.date = date;
+        this.checkInDate = checkInDate;
+        this.checkOutDate = checkOutDate;
         this.member = member;
         this.site = site;
     }
@@ -39,8 +41,12 @@ public class Reservation {
         return id;
     }
 
-    public LocalDate getDate() {
-        return date;
+    public LocalDate getCheckInDate() {
+        return checkInDate;
+    }
+
+    public LocalDate getCheckOutDate() {
+        return checkOutDate;
     }
 
     public Member getMember() {

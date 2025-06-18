@@ -10,12 +10,12 @@ import finalmission.reservation.dto.ReservationResponse;
 import finalmission.reservation.repository.ReservationRepository;
 import finalmission.site.domain.Site;
 import finalmission.site.repository.SiteRepository;
+import java.time.LocalDate;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ReservationService {
-
 
     private final ReservationRepository reservationRepository;
     private final MemberRepository memberRepository;
@@ -28,11 +28,12 @@ public class ReservationService {
         this.siteRepository = siteRepository;
     }
 
-    public ReservationResponse create(ReservationRequest request) {
-        Member member = memberRepository.findById(request.memberId())
+    public ReservationResponse create(LoginMember loginMember, ReservationRequest request) {
+        Member member = memberRepository.findById(loginMember.id())
                 .orElseThrow(() -> new IllegalArgumentException("회원 정보가 없습니다."));
         Site site = siteRepository.findById(request.siteId())
                 .orElseThrow(() -> new IllegalArgumentException("장소 정보가 없습니다."));
+        validateDate(request);
         Reservation reservation = request.toReservation(member, site);
         Reservation savedReservation = reservationRepository.save(reservation);
         return ReservationResponse.from(savedReservation);
@@ -44,13 +45,37 @@ public class ReservationService {
                 .toList();
     }
 
-    public void delete(Long memberId) {
-        reservationRepository.deleteById(memberId);
-    }
-
     public List<ReservationResponse> findAll() {
         return reservationRepository.findAll().stream()
                 .map(ReservationResponse::from)
                 .toList();
+    }
+
+    public ReservationResponse update(LoginMember loginMember, Long reservationId, ReservationRequest request) {
+        validateDate(request);
+        Member member = memberRepository.findById(loginMember.id())
+                .orElseThrow(() -> new IllegalArgumentException("회원 정보가 없습니다."));
+        Site site = siteRepository.findById(request.siteId())
+                .orElseThrow(() -> new IllegalArgumentException("장소 정보가 없습니다."));
+        Reservation findReservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 예약입니다."));
+        reservationRepository.deleteById(findReservation.getId());
+        Reservation savedReservation = reservationRepository.save(request.toReservation(member, site));
+        return ReservationResponse.from(savedReservation);
+    }
+
+    public void delete(Long reservationId) {
+        reservationRepository.deleteById(reservationId);
+    }
+
+    private void validateDate(ReservationRequest request) {
+        LocalDate date = request.checkInDate();
+        while (date.isBefore(request.checkOutDate())) {
+            if (reservationRepository.existsReservationInDateRangeAndSiteId(
+                    request.siteId(), date)) {
+                throw new IllegalArgumentException("해당 기간에 이미 예약이 존재합니다.");
+            }
+            date = date.plusDays(1);
+        }
     }
 }

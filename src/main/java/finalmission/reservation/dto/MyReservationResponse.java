@@ -5,10 +5,12 @@ import java.time.LocalDate;
 
 public record MyReservationResponse(
         Long id,
-        LocalDate date,
+        LocalDate checkInDate,
+        LocalDate checkOutDate,
         Long siteId
 ) {
     public static MyReservationResponse from(Reservation reservation) {
-        return new MyReservationResponse(reservation.getId(), reservation.getDate(), reservation.getSite().getId());
+        return new MyReservationResponse(reservation.getId(), reservation.getCheckInDate(),
+                reservation.getCheckOutDate(), reservation.getSite().getId());
     }
 }

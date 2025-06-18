@@ -1,5 +1,7 @@
-package finalmission.auth;
+package finalmission.auth.config;
 
+import finalmission.auth.Interceptor;
+import finalmission.auth.Resolver;
 import finalmission.auth.service.AuthService;
 import java.util.List;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,6 @@
-package finalmission.reservation;
+package finalmission.reservation.controller;
+
+import static org.hamcrest.Matchers.is;
 
 import finalmission.auth.dto.LoginRequest;
 import finalmission.reservation.dto.ReservationRequest;
@@ -29,10 +31,12 @@ class ReservationControllerTest {
     @DisplayName("예약을 생성할 수 있다.")
     @Test
     void create() {
-        ReservationRequest request = new ReservationRequest(LocalDate.now(), 1L, 1L);
+        ReservationRequest request = new ReservationRequest(LocalDate.now(), LocalDate.now().plusDays(3), 1L);
+        String token = getToken();
 
         RestAssured.given().log().all()
                 .contentType(ContentType.JSON)
+                .cookie("token", token)
                 .body(request)
                 .when().post("/reservations")
                 .then().log().all()
@@ -45,8 +49,8 @@ class ReservationControllerTest {
         String token = getToken();
 
         RestAssured.given().log().all()
-                .cookie("token", token)
                 .contentType(ContentType.JSON)
+                .cookie("token", token)
                 .when().get("/reservations/mine")
                 .then().log().all()
                 .statusCode(200);
@@ -54,7 +58,7 @@ class ReservationControllerTest {
 
     @DisplayName("내 예약을 삭제할 수 있다.")
     @Test
-    void deleteMtReservation() {
+    void deleteMyReservation() {
         String token = getToken();
 
         RestAssured.given().log().all()
@@ -63,6 +67,22 @@ class ReservationControllerTest {
                 .when().delete("/reservations/mine/1")
                 .then().log().all()
                 .statusCode(204);
+    }
+
+    @DisplayName("내 예약을 수정할 수 있다.")
+    @Test
+    void updateMyReservation() {
+        ReservationRequest request = new ReservationRequest(LocalDate.of(2025, 9, 15), LocalDate.of(2025, 9, 18), 1L);
+        String token = getToken();
+
+        RestAssured.given().log().all()
+                .contentType(ContentType.JSON)
+                .cookie("token", token)
+                .body(request)
+                .when().patch("/reservations/mine/1")
+                .then().log().all()
+                .statusCode(201)
+                .body("checkInDate", is("2025-09-15"));
     }
 
     private String getToken() {
@@ -76,5 +96,4 @@ class ReservationControllerTest {
                 .extract()
                 .cookie("token");
     }
-
 }
